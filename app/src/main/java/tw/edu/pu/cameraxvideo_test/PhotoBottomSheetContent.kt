@@ -24,31 +24,34 @@ import androidx.compose.ui.graphics.asImageBitmap
 fun PhotoBottomSheetContent(
     bitmaps:List<Bitmap>,
     modifier: Modifier=Modifier
-){
-    if (bitmaps.isEmpty()){
+) {
+    if (bitmaps.isEmpty()) {
         Box(
-            modifier=modifier
+            modifier = modifier
                 .padding(16.dp),
             contentAlignment = Alignment.Center
-        ){
+        ) {
             Text("There are no photos yet")
         }
-    }else{
-    LazyVerticalStaggeredGrid(
-        columns = StaggeredGridCells.Fixed(2),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalItemSpacing = 16.dp,
-        contentPadding= PaddingValues(16.dp),
-        modifier = modifier
-    ){
-        items(bitmaps.size){ bitmap ->
-            val bitmap = bitmaps[bitmap]
-            Image(
-                bitmap = bitmap.asImageBitmap(),
-                contentDescription = null,
-                modifier=Modifier
-                    .clip(RoundedCornerShape(10.dp))
-            )
+    } else {
+
+
+        LazyVerticalStaggeredGrid(
+            columns = StaggeredGridCells.Fixed(2),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalItemSpacing = 16.dp,
+            contentPadding = PaddingValues(16.dp),
+            modifier = modifier
+        ) {
+            items(bitmaps.size) { bitmap ->
+                val bitmap = bitmaps[bitmap]
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                )
+            }
         }
     }
 }
