@@ -65,7 +65,6 @@ import androidx.core.content.PermissionChecker
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
-import tw.edu.pu.cameraxvideo_test.databinding.ActivityMainBinding
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
