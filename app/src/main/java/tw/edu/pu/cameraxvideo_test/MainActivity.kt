@@ -2,7 +2,6 @@
 
 package tw.edu.pu.cameraxvideo_test
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
@@ -27,17 +26,14 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.video.FileOutputOptions
 import androidx.camera.video.MediaStoreOutputOptions
 import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
 import androidx.camera.video.Recorder
-import androidx.camera.video.Recording
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoRecordEvent
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
-import androidx.camera.view.video.AudioConfig
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -49,7 +45,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cameraswitch
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -70,15 +65,13 @@ import androidx.core.content.PermissionChecker
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
-import java.io.File
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
-
-    private var recording: Recording? = null
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if(!hasRequiredPermissions(baseContext)){
+        if(!hasRequiredPermission(baseContext)){
             ActivityCompat.requestPermissions(
                 this, CAMERAX_PERMISSIONS,0
             )
@@ -167,16 +160,6 @@ class MainActivity : ComponentActivity() {
                                     contentDescription = "Take photo"
                                 )
                             }
-                            IconButton(
-                                onClick = {
-                                   recordVideo(controller)
-                                }
-                            ){
-                                Icon(
-                                    imageVector = Icons.Default.Videocam,
-                                    contentDescription = "Record video"
-                                )
-                            }
                         }
                     }
 
@@ -188,9 +171,6 @@ class MainActivity : ComponentActivity() {
         controller: LifecycleCameraController,
     onPhotoTaken:(Bitmap)->Unit
     ){
-        if(!hasRequiredPermissions(baseContext)){
-            return
-        }
         controller.takePicture(
             ContextCompat.getMainExecutor(applicationContext),
             object :OnImageCapturedCallback(){
@@ -219,57 +199,6 @@ class MainActivity : ComponentActivity() {
             }
         )
     }
-    private fun recordVideo(controller: LifecycleCameraController){
-        if(recording != null){
-            recording?.stop()
-            recording =null
-            return
-        }
-        if(!hasRequiredPermissions(baseContext)){
-            return
-        }
-        val outputFile = File(filesDir, "my-recording.mp4")
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.RECORD_AUDIO
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return
-        }
-        recording= controller.startRecording(
-            FileOutputOptions.Builder(outputFile).build(),
-            AudioConfig.create(true),
-            ContextCompat.getMainExecutor(applicationContext),
-        ){ event ->
-            when(event){
-                is VideoRecordEvent.Finalize ->{
-                    if(event.hasError()){
-                        recording?.close()
-                        recording =null
-
-                        Toast.makeText(
-                            applicationContext,
-                            "Video capture failed",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }else{
-                        Toast.makeText(
-                            applicationContext,
-                            "Video capture succeeded",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
-            }
-        }
-    }
 
     companion object {
         private const val TAG="CameraXVideo"
@@ -283,7 +212,7 @@ class MainActivity : ComponentActivity() {
                 add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
             }
             }.toTypedArray()
-        fun hasRequiredPermissions(context:Context)= Companion.CAMERAX_PERMISSIONS.all{
+        fun hasRequiredPermission(context:Context)= Companion.CAMERAX_PERMISSIONS.all{
             ContextCompat.checkSelfPermission(context,it)== PackageManager.PERMISSION_GRANTED
         }
     }
